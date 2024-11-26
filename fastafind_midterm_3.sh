@@ -23,18 +23,19 @@ echo There are $n_files fa/fasta files in the provided folder
 #Step 2: keep the unique ones -> how??
 
 #TODO: for each file print a header with the file name
-
+#Create fasta_ids file in the given folder, we will store all fasta IDs here for further processing
+touch $1/fasta_ids
 find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
-    do
-    	filename=$i
-    	#TODO: how to delete the path and only keep the name??
-        echo "######" The file name is $filename "#########"
-        if [[ -h $i ]]
+  do
+    filename=$i
+    #TODO: how to delete the path and only keep the name??
+    echo "######" The file name is $filename "#########"
+      if [[ -h $i ]]
         then
-			echo The file is a symbolic link
-		else
-			echo Not a symbolic link #TODO: Are these conditions exclusive??
-		fi
+			  echo The file is a symbolic link
+		  else
+			  echo Not a symbolic link #TODO: Are these conditions exclusive??
+		  fi
 		echo "There are: "
 		grep ">" $i | sed 's/>//' | awk '{print $1}' | sort | uniq | wc -l
 		echo "unique fasta IDs"
@@ -42,13 +43,17 @@ find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
 		#then count the lines, is this a good solution?
 
 		#Compute total number of sequences per file
-		nseq=$(grep ">" $i | wc -l)
+		#>at the beginning of a string, use ^
+		nseq=$(grep "^>" $i | wc -l)
 		echo "The number of sequences is: " $nseq
 
 		#Compute the total number of amino acids or nucleotides of ALL sequences in the file
 		#First, remove all gaps in the non-title lines and then remove all the titles
-    sed '/>/! s/-//g' $i | grep -v '>'
-    done
+		#TODO: how to deal with files like ._sequences.fasta?? Or hidden files???
+		echo "The total sequence length of the file is:"
+    sed '/>/! s/-//g; s/ //g' $i | grep -v '>' | tr -d '\n' | wc -m
+    # tr -d '\n' removes new lines
+  done
 
 
 # remove all gaps in non-title lines:
