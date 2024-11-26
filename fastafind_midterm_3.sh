@@ -25,9 +25,12 @@ echo There are $n_files fa/fasta files in the provided folder
 #TODO: for each file print a header with the file name
 #Create fasta_ids file in the given folder, we will store all fasta IDs here for further processing
 touch $1/fasta_ids
+#chmod +w $1/fasta_ids
 find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
   do
     filename=$i
+    #Append name to fasta_ids
+    echo $i >> $1/fasta_ids
     #TODO: how to delete the path and only keep the name??
     echo "######" The file name is $filename "#########"
       if [[ -h $i ]]
@@ -35,9 +38,9 @@ find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
 			  echo The file is a symbolic link
 		  else
 			  echo Not a symbolic link #TODO: Are these conditions exclusive??
-		  fi
+	    fi
 		echo "There are: "
-		grep ">" $i | sed 's/>//' | awk '{print $1}' | sort | uniq | wc -l
+		grep ">" $i | sed 's/>//' | awk '{print $1}' >> $1/fasta_ids
 		echo "unique fasta IDs"
 		#TODO: how to sum all fasta IDs??? I can put all of them in a file and
 		#then count the lines, is this a good solution?
@@ -54,7 +57,8 @@ find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
     sed '/>/! s/-//g; s/ //g' $i | grep -v '>' | tr -d '\n' | wc -m
     # tr -d '\n' removes new lines
   done
-
+#Once the fasta_ids is finished processed, sort, get unique fasta ids and count them
+#sort | uniq | wc -l
 
 # remove all gaps in non-title lines:
 #sed '/>/! s/-//g' fesor.dbteu.aligned.fa
