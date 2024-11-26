@@ -28,14 +28,31 @@ find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
     do
     	filename=$i
     	#TODO: how to delete the path and only keep the name??
-        echo "######" The file name is $filename
+        echo "######" The file name is $filename "#########"
         if [[ -h $i ]]
         then
 			echo The file is a symbolic link
-		#else
-			#echo Not a symbolic link #TODO: Are these conditions exclusive??
+		else
+			echo Not a symbolic link #TODO: Are these conditions exclusive??
 		fi
 		echo "There are: "
 		grep ">" $i | sed 's/>//' | awk '{print $1}' | sort | uniq | wc -l
 		echo "unique fasta IDs"
+		#TODO: how to sum all fasta IDs??? I can put all of them in a file and
+		#then count the lines, is this a good solution?
+
+		#Compute total number of sequences per file
+		nseq=$(grep ">" $i | wc -l)
+		echo "The number of sequences is: " $nseq
+
+		#Compute the total number of amino acids or nucleotides of ALL sequences in the file
+		#First, remove all gaps in the non-title lines and then remove all the titles
+    sed '/>/! s/-//g' $i | grep -v '>'
     done
+
+
+# remove all gaps in non-title lines:
+#sed '/>/! s/-//g' fesor.dbteu.aligned.fa
+#Can you print all sequences (omitting titles) in fesor.dbteu.aligned.fa with gaps removed?
+#remove all gaps in non-title lines and then then remove all the titles
+#sed '/>/! s/-//g' fesor.dbteu.aligned.fa | grep -v '>'
