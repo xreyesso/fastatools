@@ -15,7 +15,7 @@ FOLDER=$1
 fasta_files=$(find $1 -type f -name "*.fa" -or -name "*.fasta")
 n_files=$(find $1 -type f -name "*.fa" -or -name "*.fasta" | wc -l)
 echo "####### REPORT ###############"
-echo There are $n_files fa/fasta files in the folder
+echo There are $n_files fa/fasta files in the provided folder
 
 
 #TODO: determine how many unique fasta IDs there are in the fa/files of our folder
@@ -24,7 +24,7 @@ echo There are $n_files fa/fasta files in the folder
 
 #TODO: for each file print a header with the file name
 
-find $1 -type f -name "*.fa" -or -name "*.fasta" | while read i
+find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
     do
     	filename=$i
     	#TODO: how to delete the path and only keep the name??
@@ -35,5 +35,7 @@ find $1 -type f -name "*.fa" -or -name "*.fasta" | while read i
 		#else
 			#echo Not a symbolic link #TODO: Are these conditions exclusive??
 		fi
-		grep ">" $i 
+		echo "There are: "
+		grep ">" $i | sed 's/>//' | awk '{print $1}' | sort | uniq | wc -l
+		echo "unique fasta IDs"
     done
