@@ -29,8 +29,7 @@ touch $1/fasta_ids
 find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
   do
     filename=$i
-    #Append name to fasta_ids
-    echo $i >> $1/fasta_ids
+
     #TODO: how to delete the path and only keep the name??
     echo "######" The file name is $filename "#########"
       if [[ -h $i ]]
@@ -39,29 +38,30 @@ find "$1" -type f -name "*.fa" -or -name "*.fasta" | while read i
 		  else
 			  echo Not a symbolic link #TODO: Are these conditions exclusive??
 	    fi
-		echo "There are: "
+
+	  #Get the fastaIDs from file $i and append them to a list containing all fastaIDs from the given folder
 		grep ">" $i | sed 's/>//' | awk '{print $1}' >> $1/fasta_ids
-		echo "unique fasta IDs"
-		#TODO: how to sum all fasta IDs??? I can put all of them in a file and
-		#then count the lines, is this a good solution?
 
 		#Compute total number of sequences per file
-		#>at the beginning of a string, use ^
+		# Recall: use ^ to grep ">" at the beginning of a string
 		nseq=$(grep "^>" $i | wc -l)
 		echo "The number of sequences is: " $nseq
 
 		#Compute the total number of amino acids or nucleotides of ALL sequences in the file
 		#First, remove all gaps in the non-title lines and then remove all the titles
+
 		#TODO: how to deal with files like ._sequences.fasta?? Or hidden files???
 		echo "The total sequence length of the file is:"
     sed '/>/! s/-//g; s/ //g' $i | grep -v '>' | tr -d '\n' | wc -m
     # tr -d '\n' removes new lines
   done
-#Once the fasta_ids is finished processed, sort, get unique fasta ids and count them
-#sort | uniq | wc -l
+#Once the fasta_ids file is created, sort it, get unique fastaIDs and count them
+echo "######" End of information per file "#########"
+N_UNIQUE_IDS=$(sort $1/fasta_ids | uniq | wc -l)
+echo "There are: " $N_UNIQUE_IDS "unique fasta IDs in the given folder"
 
-# remove all gaps in non-title lines:
+# remove all gaps in non-title lines, example:
 #sed '/>/! s/-//g' fesor.dbteu.aligned.fa
 #Can you print all sequences (omitting titles) in fesor.dbteu.aligned.fa with gaps removed?
-#remove all gaps in non-title lines and then then remove all the titles
+#remove all gaps in non-title lines and then then remove all the titles, example:
 #sed '/>/! s/-//g' fesor.dbteu.aligned.fa | grep -v '>'
