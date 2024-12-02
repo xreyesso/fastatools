@@ -68,31 +68,24 @@ then
   exit 1
 fi
 
+# Generate report
+echo "##################### REPORT #####################"
+
 # Find FA/FASTA files
 FASTA_FILES=$(find $FOLDER -type f -name "*.fa" -or -name "*.fasta")
 N_FILES=$(echo "$FASTA_FILES" | wc -l)
-echo "##################### REPORT #####################"
-echo "There are $N_FILES fa/fasta files in the provided folder"
+echo "There are $N_FILES FA/FASTA files in '$FOLDER'."
 
 if [[ $N_FILES -eq 0 ]]; then
   echo "No FA/FASTA files to process."
   exit 0
 fi
 
-#Determine fasta IDs
-touch $FOLDER/fasta_ids
-find $FOLDER -type f -name "*.fa" -or -name "*.fasta" | while read FILE
-  do
-    grep ">" $FILE | sed 's/>//' | awk '{print $1}' >> $FOLDER/fasta_ids
-  done
-
-# Print the number of unique fastaIDs
-N_UNIQUE_IDS=$(sort $FOLDER/fasta_ids | uniq | wc -l)
-echo "There are $N_UNIQUE_IDS unique fasta IDs in the given folder"
-echo "-------------- REPORT PER FILE --------------"
+# Optimize the program by directly piping outputs without using intermediate storage (fasta_ids file)
+UNIQUE_IDS=$(awk '/^>/{print $1}' $FASTA_FILES | sort | uniq | wc -l)
+echo "There are $UNIQUE_IDS unique fasta IDs in the given folder"
 
 # Process FA/FASTA files
-#echo "$FASTA_FILES" | while read FILE; do
 find $FOLDER -type f -name "*.fa" -or -name "*.fasta" | while read FILE; do
     FILENAME=$(basename "$FILE") # The basename command is used to extract the file name from the path
     echo "######## Processing: $FILENAME ########"
@@ -135,5 +128,7 @@ find $FOLDER -type f -name "*.fa" -or -name "*.fasta" | while read FILE; do
       fi
     fi
   done
+
+echo "################### END OF REPORT ###################"
 
 
