@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # ALG midterm 3
-# The script takes two optional arguments:
-# The folder X where to search the files, default: current folder
-# A number of lines N, default: 0
+# Enhanced FASTA Scanner Script
+# Usage: ./fastascan.sh [N] [FOLDER]
+# - N: Number of lines to preview (default: 0)
+# - FOLDER: Directory to scan (default: current)
 
-# We first check whether the number of arguments is correct. If it is, try to accommodate them in the correct variable
-if [[ $# -gt 2 ]] # If more than two arguments are given, exit the program
-then
-  echo "The number of arguments passed is greater than expected"
+# Argument parsing
+if [[ $# -gt 2 ]]; then
+  echo "Error: Too many arguments. Provide at most two: [N] [FOLDER]."
   exit 1
 fi
 
@@ -42,28 +42,13 @@ then
   fi
 fi
 
-# Now, check if all arguments are correct
-if [[ -d $FOLDER ]] # With the option -d, we check if the given path exists AND is a directory
-then
-  if [[ -r $FOLDER ]] # Check if we have permission to read the directory
-  then
-    if [[ ! -w $FOLDER ]] # Check if we have permission to write in the directory, since this is necessary to compute
-    # the number of unique fastaIDs
-    then
-    	echo "The folder does not have write permission, and this is necessary for further steps"
-    	exit 1
-    fi
-  else
-    echo "The folder specified does not have read permission"
-    exit 1
-  fi
-else
-  echo "The given path is not a directory or the directory does not exist"
+# Validate inputs
+if [[ ! -d $FOLDER || ! -r $FOLDER ]]; then
+  echo "Error: Specified folder '$FOLDER' is not accessible: either it is not a dir or does not have read permission."
   exit 1
 fi
 
-if [[ $N =~ ^[-] ]]
-then
+if [[ $N =~ ^[-] ]]; then
   echo "The number of lines provided is not valid"
   exit 1
 fi
